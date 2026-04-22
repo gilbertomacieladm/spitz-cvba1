@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matriz CVBA — Spitz Pomer</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #D4001A;
+    --red-glow: #FF1A35;
+    --bg: #0A0A0A;
+    --text: #F0EDE8;
+    --muted: #666;
+    --card: #0F0F0F;
+    --border: #1C1C1C;
+
+    --c-col: #FF6B35;
+    --v-col: #FFB800;
+    --b-col: #00C2A8;
+    --a-col: #D4001A;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(212,0,26,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    position: relative;
+    z-index: 1;
+    padding: 52px 56px 36px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .brand-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .brand-dot {
+    width: 8px; height: 8px;
+    background: var(--red);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--red-glow);
+    animation: blink 2s infinite;
+  }
+
+  @keyframes blink {
+    0%,100%{opacity:1;} 50%{opacity:0.4;}
+  }
+
+  .brand-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .header-body {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+
+  .page-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 7vw, 88px);
+    line-height: 0.88;
+    letter-spacing: 0.03em;
+  }
+
+  .page-title em {
+    color: var(--red);
+    font-style: normal;
+  }
+
+  .header-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-end;
+    padding-bottom: 4px;
+  }
+
+  .meta-pill {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border: 1px solid #222;
+    border-radius: 2px;
+    color: #555;
+  }
+
+  .meta-pill.active {
+    border-color: rgba(212,0,26,0.4);
+    color: var(--red);
+    background: rgba(212,0,26,0.06);
+  }
+
+  .header-desc {
+    margin-top: 18px;
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--muted);
+    max-width: 620px;
+    line-height: 1.7;
+  }
+
+  /* ── LEGEND ── */
+  .legend-bar {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .legend-item {
+    flex: 1;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-right: 1px solid var(--border);
+    background: var(--card);
+  }
+
+  .legend-item:last-child { border-right: none; }
+
+  .legend-letter {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    line-height: 1;
+  }
+
+  .legend-text { display: flex; flex-direction: column; gap: 1px; }
+
+  .legend-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .legend-desc {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  /* ── MATRIX TABLE ── */
+  .matrix-wrap {
+    position: relative;
+    z-index: 1;
+    padding: 40px 56px 56px;
+    overflow-x: auto;
+  }
+
+  .matrix-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .matrix-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 900px;
+  }
+
+  /* Header row */
+  thead th {
+    padding: 14px 20px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  th.th-produto { color: var(--muted); background: #0C0C0C; border-right: 1px solid var(--border); width: 14%; }
+  th.th-c { color: var(--c-col); background: rgba(255,107,53,0.05); width: 20%; }
+  th.th-v { color: var(--v-col); background: rgba(255,184,0,0.05); width: 20%; }
+  th.th-b { color: var(--b-col); background: rgba(0,194,168,0.05); width: 20%; }
+  th.th-a { color: var(--a-col); background: rgba(212,0,26,0.05); width: 26%; }
+
+  .th-letter {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    display: block;
+    line-height: 1;
+    margin-bottom: 3px;
+  }
+
+  /* Body rows */
+  tbody tr {
+    border-bottom: 1px solid #141414;
+    transition: background 0.2s;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover td { background: rgba(255,255,255,0.015); }
+
+  td {
+    padding: 22px 20px;
+    vertical-align: top;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #C8C4BE;
+  }
+
+  td.td-produto {
+    border-right: 1px solid var(--border);
+    background: #0C0C0C;
+  }
+
+  .produto-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .produto-tag {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 2px;
+    display: inline-block;
+    margin-top: 4px;
+  }
+
+  .tag-p1 { background: rgba(212,0,26,0.12); color: var(--red); border: 1px solid rgba(212,0,26,0.25); }
+  .tag-p2 { background: rgba(255,184,0,0.1); color: var(--v-col); border: 1px solid rgba(255,184,0,0.25); }
+  .tag-p3 { background: rgba(0,194,168,0.1); color: var(--b-col); border: 1px solid rgba(0,194,168,0.25); }
+
+  td.td-c { background: rgba(255,107,53,0.03); border-right: 1px solid #161616; }
+  td.td-v { background: rgba(255,184,0,0.03); border-right: 1px solid #161616; }
+  td.td-b { background: rgba(0,194,168,0.03); border-right: 1px solid #161616; }
+  td.td-a { background: rgba(212,0,26,0.03); }
+
+  /* Tag de copy dentro da célula */
+  .copy-hook {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 11px;
+    font-style: italic;
+    color: #888;
+    border-left: 2px solid #2A2A2A;
+    padding-left: 8px;
+    line-height: 1.5;
+  }
+
+  td.td-a .copy-hook {
+    border-left-color: rgba(212,0,26,0.4);
+    color: #AA8888;
+  }
+
+  td.td-b .copy-hook {
+    border-left-color: rgba(0,194,168,0.35);
+    color: #7AADA6;
+  }
+
+  td.td-v .copy-hook {
+    border-left-color: rgba(255,184,0,0.35);
+    color: #B09A55;
+  }
+
+  td.td-c .copy-hook {
+    border-left-color: rgba(255,107,53,0.35);
+    color: #AA7A65;
+  }
+
+  /* ── COPY BANK ── */
+  .copy-bank {
+    position: relative;
+    z-index: 1;
+    margin: 0 56px 56px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .copy-bank-header {
+    padding: 16px 24px;
+    background: #0D0D0D;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .copy-bank-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .copy-bank-badge {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border: 1px solid rgba(212,0,26,0.3);
+    color: var(--red);
+    border-radius: 2px;
+    background: rgba(212,0,26,0.06);
+  }
+
+  .copy-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 0;
+  }
+
+  .copy-card {
+    padding: 22px 24px;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .copy-card:last-child, .copy-card:nth-child(3n) { border-right: none; }
+
+  .copy-persona {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .copy-p1 { color: var(--red); }
+  .copy-p2 { color: var(--v-col); }
+  .copy-p3 { color: var(--b-col); }
+
+  .copy-headline {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 0.04em;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .copy-body {
+    font-size: 12px;
+    color: #999;
+    line-height: 1.65;
+    font-weight: 400;
+  }
+
+  .copy-cta {
+    margin-top: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .copy-p1 ~ .copy-cta, .copy-card:nth-child(1) .copy-cta { color: var(--red); }
+  .copy-p2 ~ .copy-cta { color: var(--v-col); }
+
+  /* ── FOOTER ── */
+  .footer {
+    position: relative;
+    z-index: 1;
+    padding: 28px 56px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .footer-note {
+    font-size: 11px;
+    color: #333;
+    max-width: 600px;
+    line-height: 1.6;
+  }
+
+  .footer-badge {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #2A2A2A;
+    border: 1px solid #1E1E1E;
+    padding: 5px 12px;
+    border-radius: 2px;
+  }
+
+  @media (max-width: 768px) {
+    .header, .matrix-wrap, .copy-bank, .footer { padding-left: 24px; padding-right: 24px; }
+    .copy-bank { margin-left: 24px; margin-right: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="brand-row">
+    <div class="brand-dot"></div>
+    <span class="brand-label">Spitz Pomer × V4 Company — Destrava Receita</span>
+  </div>
+  <div class="header-body">
+    <h1 class="page-title">MATRIZ<br><em>CVBA</em></h1>
+    <div class="header-meta">
+      <span class="meta-pill active">Ingresso Avulso · Passaporte</span>
+      <span class="meta-pill">Objetivo: Copy & Anúncios</span>
+    </div>
+  </div>
+  <p class="header-desc">Cada característica do produto traduzida em linguagem de venda — do que é (C), para o que faz (V), para como transforma (B), para o porquê comprar agora (A). Base para headlines, roteiros de vídeo e copy de anúncio.</p>
+</header>
+
+<!-- LEGEND -->
+<div class="legend-bar">
+  <div class="legend-item">
+    <span class="legend-letter" style="color:var(--c-col)">C</span>
+    <div class="legend-text">
+      <span class="legend-name" style="color:var(--c-col)">Características</span>
+      <span class="legend-desc">O que o produto é / tem</span>
+    </div>
+  </div>
+  <div class="legend-item">
+    <span class="legend-letter" style="color:var(--v-col)">V</span>
+    <div class="legend-text">
+      <span class="legend-name" style="color:var(--v-col)">Vantagens</span>
+      <span class="legend-desc">O que ele faz / resolve</span>
+    </div>
+  </div>
+  <div class="legend-item">
+    <span class="legend-letter" style="color:var(--b-col)">B</span>
+    <div class="legend-text">
+      <span class="legend-name" style="color:var(--b-col)">Benefícios</span>
+      <span class="legend-desc">Como transforma a vida</span>
+    </div>
+  </div>
+  <div class="legend-item">
+    <span class="legend-letter" style="color:var(--a-col)">A</span>
+    <div class="legend-text">
+      <span class="legend-name" style="color:var(--a-col)">Atração</span>
+      <span class="legend-desc">Por que agir agora</span>
+    </div>
+  </div>
+</div>
+
+<!-- MATRIX -->
+<div class="matrix-wrap">
+  <p class="matrix-label">Ingresso Avulso — Passaporte Único (uso ilimitado das atrações no dia)</p>
+  <table>
+    <thead>
+      <tr>
+        <th class="th-produto">Dimensão</th>
+        <th class="th-c"><span class="th-letter" style="color:var(--c-col)">C</span>Características</th>
+        <th class="th-v"><span class="th-letter" style="color:var(--v-col)">V</span>Vantagens</th>
+        <th class="th-b"><span class="th-letter" style="color:var(--b-col)">B</span>Benefícios</th>
+        <th class="th-a"><span class="th-letter" style="color:var(--a-col)">A</span>Atração (Copy)</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      <!-- ROW 1 -->
+      <tr>
+        <td class="td-produto">
+          <div class="produto-name">Modelo de Acesso</div>
+          <span class="produto-tag tag-p1">Produto Principal</span>
+        </td>
+        <td class="td-c">
+          Passaporte único com acesso ilimitado a todas as atrações durante o dia inteiro — sem pagar por atração separada.
+          <span class="copy-hook">O que é: "Pague uma vez, brinque o dia todo."</span>
+        </td>
+        <td class="td-v">
+          Elimina a ansiedade de ficar controlando quanto cada atração custa. A família usa o que quiser, quantas vezes quiser, sem culpa.
+          <span class="copy-hook">Resolve: o medo de "pagar caro e se arrepender".</span>
+        </td>
+        <td class="td-b">
+          Os pais relaxam. As crianças exploram sem pressa. O dia vira uma memória completa, não uma lista de cobranças.
+          <span class="copy-hook">Transforma: controle financeiro em liberdade emocional no passeio.</span>
+        </td>
+        <td class="td-a">
+          <strong>"Um ingresso. O dia inteiro. Sem surpresas no caixa."</strong>
+          <span class="copy-hook">Gatilho: clareza de valor antes da compra. Quebre a objeção de preço antes que ela apareça.</span>
+        </td>
+      </tr>
+
+      <!-- ROW 2 -->
+      <tr>
+        <td class="td-produto">
+          <div class="produto-name">Localização & Contexto</div>
+          <span class="produto-tag tag-p2">Diferencial Geográfico</span>
+        </td>
+        <td class="td-c">
+          Parque em Pomerode (SC) — cidade com arquitetura germânica única, próximo ao Zoológico de Pomerode, a 45 min de Blumenau e ~2h de Curitiba.
+          <span class="copy-hook">O que é: "No coração da cidade mais alemã do Brasil."</span>
+        </td>
+        <td class="td-v">
+          Permite montar um roteiro de dia completo com o Zoológico — resolve a objeção de distância ao transformar a viagem num programa maior.
+          <span class="copy-hook">Resolve: "Vale a viagem só para isso?"</span>
+        </td>
+        <td class="td-b">
+          A família não vive apenas um parque — vive uma experiência de viagem. A criança conta na escola que foi "em outra cidade". O pai se sente um organizador de férias, não só de um passeio.
+          <span class="copy-hook">Transforma: passeio local em mini-viagem inesquecível.</span>
+        </td>
+        <td class="td-a">
+          <strong>"Pomerode + Zoo + Spitz: o roteiro completo de um dia que parece fim de semana."</strong>
+          <span class="copy-hook">Gatilho para Persona 1 (Pai Organizador de Curitiba/Joinville): justifica o deslocamento com um roteiro pronto.</span>
+        </td>
+      </tr>
+
+      <!-- ROW 3 -->
+      <tr>
+        <td class="td-produto">
+          <div class="produto-name">Perfil das Atrações</div>
+          <span class="produto-tag tag-p1">Proposta de Experiência</span>
+        </td>
+        <td class="td-c">
+          Atrações de aventura e contato com natureza — tirolesa, escalada, trilhas, atividades ao ar livre — em ambiente aberto e com capacidade controlada.
+          <span class="copy-hook">O que é: "Aventura real em meio à natureza catarinense."</span>
+        </td>
+        <td class="td-v">
+          Sem filas de 1h. Sem empurra-empurra. Sem criança chorando de calor num corredor fechado. O espaço respira, e a família também.
+          <span class="copy-hook">Resolve: trauma de parques lotados e experiências decepcionantes.</span>
+        </td>
+        <td class="td-b">
+          A criança sai com o corpo cansado e os olhos brilhando. Os pais saem com a sensação de que fizeram algo real pela família — não só compraram um ingresso.
+          <span class="copy-hook">Transforma: entretenimento passivo em experiência ativa e memorável.</span>
+        </td>
+        <td class="td-a">
+          <strong>"Enquanto outras crianças ficam na fila, as suas estão na tirolesa."</strong>
+          <span class="copy-hook">Gatilho comparativo sutil contra Beto Carrero. Funciona bem em vídeo curto mostrando movimento, riso e natureza.</span>
+        </td>
+      </tr>
+
+      <!-- ROW 4 -->
+      <tr>
+        <td class="td-produto">
+          <div class="produto-name">Segurança & Faixa Etária</div>
+          <span class="produto-tag tag-p3">Tranquilidade dos Pais</span>
+        </td>
+        <td class="td-c">
+          Atrações seguras para crianças a partir de 4 anos. Equipe treinada para atendimento familiar. Ambiente controlado e acessível para diferentes idades.
+          <span class="copy-hook">O que é: "Estruturado para crianças de 4 a 12 anos."</span>
+        </td>
+        <td class="td-v">
+          O pai não precisa ficar em modo vigilância constante. Pode curtir o dia junto com os filhos em vez de ficar gerenciando risco.
+          <span class="copy-hook">Resolve: a ansiedade silenciosa de todo pai em lugar desconhecido.</span>
+        </td>
+        <td class="td-b">
+          Confiança de deixar os filhos brincarem com autonomia. O pai finalmente vira participante da experiência, não apenas acompanhante preocupado.
+          <span class="copy-hook">Transforma: vigilância ansiosa em presença tranquila e conectada.</span>
+        </td>
+        <td class="td-a">
+          <strong>"Seu filho brinca. Você respira. Isso é o Spitz."</strong>
+          <span class="copy-hook">Headline para anúncio com imagem de criança sorrindo e pai observando relaxado. Alta empatia com a Persona 1.</span>
+        </td>
+      </tr>
+
+      <!-- ROW 5 -->
+      <tr>
+        <td class="td-produto">
+          <div class="produto-name">Compra Antecipada Online</div>
+          <span class="produto-tag tag-p2">Canal de Venda</span>
+        </td>
+        <td class="td-c">
+          Ingresso disponível para compra online com agendamento de data. Preço antecipado com desconto em relação ao valor na bilheteria.
+          <span class="copy-hook">O que é: "Compre antes, garanta o preço e o dia."</span>
+        </td>
+        <td class="td-v">
+          Elimina risco de lotação ou indisponibilidade no dia. O pai planeja com antecedência e sai de casa com tudo resolvido.
+          <span class="copy-hook">Resolve: insegurança de quem está planejando uma viagem de outra cidade.</span>
+        </td>
+        <td class="td-b">
+          Sensação de controle e organização. O pai vira o herói do planejamento familiar — chegou, estava tudo certo, as crianças entraram sem estresse.
+          <span class="copy-hook">Transforma: incerteza logística em segurança emocional pré-passeio.</span>
+        </td>
+        <td class="td-a">
+          <strong>"Garanta agora com R$ X de desconto. No dia, só curtir."</strong>
+          <span class="copy-hook">CTA direto para remarketing. Adicionar urgência real: "X ingressos disponíveis para o próximo feriado."</span>
+        </td>
+      </tr>
+
+    </tbody>
+  </table>
+</div>
+
+<!-- COPY BANK -->
+<div class="copy-bank">
+  <div class="copy-bank-header">
+    <span class="copy-bank-title">⚡ Banco de Copy — Headlines Prontas por Persona</span>
+    <span class="copy-bank-badge">Pronto para usar</span>
+  </div>
+  <div class="copy-grid">
+
+    <div class="copy-card">
+      <div class="copy-persona copy-p1">Persona 1 · Pai Organizador · Curitiba / Joinville</div>
+      <div class="copy-headline">UM DIA INTEIRO DE AVENTURA POR R$ 99</div>
+      <p class="copy-body">Passaporte único, todas as atrações liberadas, sem fila, em meio à natureza de Pomerode. Combine com o Zoo e transforme numa viagem que eles vão pedir pra repetir.</p>
+      <span class="copy-cta" style="color:var(--red)">→ Comprar ingresso antecipado</span>
+    </div>
+
+    <div class="copy-card">
+      <div class="copy-persona copy-p1">Persona 1 · Objeção de Distância</div>
+      <div class="copy-headline">VALE A VIAGEM. E SOBRA.</div>
+      <p class="copy-body">Spitz Pomer + Zoológico de Pomerode = o roteiro de 1 dia que parece um fim de semana inteiro. A 2h de Curitiba, a 45 min de Blumenau.</p>
+      <span class="copy-cta" style="color:var(--red)">→ Ver roteiro completo</span>
+    </div>
+
+    <div class="copy-card">
+      <div class="copy-persona copy-p2">Persona 2 · Turista de Passagem · SP / RJ / Floripa</div>
+      <div class="copy-headline">A EXPERIÊNCIA QUE O BETO CARRERO NÃO TEM</div>
+      <p class="copy-body">Aventura real, natureza, sem multidão. Em Pomerode — a cidade mais alemã do Brasil. Compre antecipado e garanta sua data no roteiro de SC.</p>
+      <span class="copy-cta" style="color:var(--v-col)">→ Garantir minha data</span>
+    </div>
+
+    <div class="copy-card">
+      <div class="copy-persona copy-p1">Persona 1 · Segurança / Mãe de Criança Pequena</div>
+      <div class="copy-headline">SEU FILHO BRINCA. VOCÊ RESPIRA.</div>
+      <p class="copy-body">Estrutura pensada para crianças de 4 a 12 anos. Equipe preparada. Espaço seguro. Você curte o dia junto — sem gerenciar risco a cada minuto.</p>
+      <span class="copy-cta" style="color:var(--red)">→ Conhecer as atrações</span>
+    </div>
+
+    <div class="copy-card">
+      <div class="copy-persona copy-p2">Persona 2 · Prova Social / Remarketing</div>
+      <div class="copy-headline">4,8⭐ — FAMÍLIAS DE TODO O BRASIL JÁ VIERAM</div>
+      <p class="copy-body">Mais de 130.000 visitantes por ano. Avaliações reais de quem veio de São Paulo, Rio e Floripa e voltou querendo mais. Você está chegando em SC — não passa sem conhecer.</p>
+      <span class="copy-cta" style="color:var(--v-col)">→ Ver o que estão falando</span>
+    </div>
+
+    <div class="copy-card">
+      <div class="copy-persona copy-p1">Persona 1 · Urgência / Feriado</div>
+      <div class="copy-headline">FERIADO CHEGANDO. INGRESSOS ESGOTANDO.</div>
+      <p class="copy-body">Garante o dia da sua família agora com o preço antecipado. No dia do passeio, só chegar e curtir — sem fila, sem estresse, sem surpresa no caixa.</p>
+      <span class="copy-cta" style="color:var(--red)">→ Garantir com desconto</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <p class="footer-note">Matriz CVBA construída com base no relatório Destrava Receita, dados de 14.922 visitantes e mapeamento de personas — Spitz Pomer, 2026. Headlines prontas para uso em Meta Ads, Google Ads e copy de WhatsApp.</p>
+  <span class="footer-badge">V4 Company · Destrava Receita</span>
+</footer>
+
+</body>
+</html>
